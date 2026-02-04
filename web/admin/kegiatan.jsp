@@ -2,10 +2,10 @@
 <%@page import="com.masjid.config.Koneksi"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%
-    if (session.getAttribute("adminId") == null) {
-        response.sendRedirect("../login.jsp");
-        return;
-    }
+if (session.getAttribute("adminId") == null) {
+    response.sendRedirect("../login.jsp");
+    return;
+}
 %>
 <!DOCTYPE html>
 <html>
@@ -14,207 +14,272 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kelola Kegiatan - Admin Masjid</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Poppins', sans-serif; background: #f0f2f5; min-height: 100vh; }
-        .sidebar { position: fixed; left: 0; top: 0; width: 260px; height: 100vh; background: linear-gradient(180deg, #1a5d3a 0%, #0d3320 100%); padding: 20px; z-index: 100; }
-        .sidebar-header { text-align: center; padding: 20px 0 30px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 30px; }
-        .sidebar-header h2 { color: white; font-size: 1.1rem; }
-        .sidebar-header p { color: rgba(255,255,255,0.6); font-size: 0.8rem; }
+        body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #f0f2f5 0%, #e8eef3 100%); min-height: 100vh; }
+        .sidebar { position: fixed; left: 0; top: 0; width: 280px; height: 100vh; background: linear-gradient(180deg, #1a5d3a 0%, #0d3320 100%); padding: 25px 20px; z-index: 100; box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1); }
+        .sidebar-header { text-align: center; padding: 25px 0 35px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 30px; }
+        .sidebar-header .logo { font-size: 50px; color: #ffd700; margin-bottom: 15px; }
+        .sidebar-header h2 { color: white; font-size: 1.15rem; }
+        .sidebar-header p { color: rgba(255, 255, 255, 0.6); font-size: 0.85rem; margin-top: 5px; }
         .nav-menu { list-style: none; }
         .nav-menu li { margin-bottom: 8px; }
-        .nav-menu a { display: flex; align-items: center; padding: 14px 18px; color: rgba(255,255,255,0.8); text-decoration: none; border-radius: 10px; transition: all 0.3s ease; }
-        .nav-menu a:hover, .nav-menu a.active { background: rgba(255,255,255,0.15); color: white; }
-        .nav-menu .logout { margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
+        .nav-menu a { display: flex; align-items: center; gap: 14px; padding: 16px 20px; color: rgba(255, 255, 255, 0.8); text-decoration: none; border-radius: 12px; transition: all 0.3s ease; }
+        .nav-menu a i { font-size: 1.2rem; width: 24px; text-align: center; }
+        .nav-menu a:hover, .nav-menu a.active { background: rgba(255, 255, 255, 0.15); color: white; transform: translateX(5px); }
+        .nav-menu a.active { background: linear-gradient(90deg, rgba(255, 215, 0, 0.2), transparent); border-left: 3px solid #ffd700; }
+        .nav-menu .logout { margin-top: 30px; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 25px; }
         .nav-menu .logout a { color: #ff6b6b; }
-        .main-content { margin-left: 260px; padding: 30px; }
-        .header { margin-bottom: 30px; }
+        .main-content { margin-left: 280px; padding: 35px; }
+        .header { margin-bottom: 30px; display: flex; align-items: center; gap: 12px; }
         .header h1 { color: #333; font-size: 1.8rem; }
-        .alert { padding: 15px 20px; border-radius: 10px; margin-bottom: 20px; }
-        .alert-success { background: #e8f5e9; color: #2e7d32; border-left: 4px solid #4caf50; }
-        .alert-error { background: #ffebee; color: #c62828; border-left: 4px solid #f44336; }
-        .card { background: white; border-radius: 15px; padding: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 30px; }
-        .card h3 { color: #333; margin-bottom: 25px; font-size: 1.2rem; padding-bottom: 15px; border-bottom: 2px solid #f0f0f0; }
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
-        .form-group { margin-bottom: 15px; }
+        .header i { color: #1a5d3a; font-size: 1.6rem; }
+        .alert { padding: 16px 22px; border-radius: 12px; margin-bottom: 25px; display: flex; align-items: center; gap: 12px; font-size: 0.95rem; }
+        .alert i { font-size: 1.2rem; }
+        .alert-success { background: linear-gradient(135deg, #e8f5e9, #c8e6c9); color: #2e7d32; border-left: 4px solid #4caf50; }
+        .alert-error { background: linear-gradient(135deg, #ffebee, #ffcdd2); color: #c62828; border-left: 4px solid #f44336; }
+        .card { background: white; border-radius: 18px; padding: 35px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05); margin-bottom: 30px; }
+        .card h3 { color: #333; margin-bottom: 28px; font-size: 1.25rem; padding-bottom: 18px; border-bottom: 2px solid #f0f0f0; display: flex; align-items: center; gap: 10px; }
+        .card h3 i { color: #1a5d3a; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 22px; }
+        .form-group { margin-bottom: 18px; }
         .form-group.full { grid-column: 1 / -1; }
-        .form-group label { display: block; color: #555; font-weight: 500; margin-bottom: 8px; }
-        .form-group input, .form-group textarea { width: 100%; padding: 12px 15px; border: 2px solid #e8e8e8; border-radius: 10px; font-family: 'Poppins', sans-serif; transition: border-color 0.3s; }
-        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #1a5d3a; }
-        .form-group textarea { min-height: 80px; resize: vertical; }
-        .btn { padding: 12px 30px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-family: 'Poppins', sans-serif; transition: all 0.3s; }
+        .form-group label { display: flex; align-items: center; gap: 8px; color: #555; font-weight: 500; margin-bottom: 10px; }
+        .form-group label i { color: #1a5d3a; }
+        .form-group input, .form-group textarea { width: 100%; padding: 14px 18px; border: 2px solid #e8e8e8; border-radius: 12px; font-family: 'Poppins', sans-serif; transition: all 0.3s; font-size: 0.95rem; }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #1a5d3a; box-shadow: 0 0 0 4px rgba(26, 93, 58, 0.1); }
+        .form-group textarea { min-height: 100px; resize: vertical; }
+        .btn { padding: 14px 32px; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; font-family: 'Poppins', sans-serif; transition: all 0.3s; display: inline-flex; align-items: center; gap: 10px; font-size: 0.95rem; }
+        .btn i { font-size: 1rem; }
         .btn-primary { background: linear-gradient(135deg, #1a5d3a, #2e8b57); color: white; }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(26,93,58,0.3); }
-        .btn-secondary { background: #f5f5f5; color: #333; }
-        .form-actions { margin-top: 20px; display: flex; gap: 15px; }
-        table { width: 100%; border-collapse: collapse; }
-        thead { background: #f8f9fa; }
-        th { padding: 15px 20px; text-align: left; font-weight: 600; color: #555; }
-        td { padding: 15px 20px; border-bottom: 1px solid #f0f0f0; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(26, 93, 58, 0.3); }
+        .btn-secondary { background: linear-gradient(135deg, #f5f7fa, #e4e8ec); color: #555; }
+        .form-actions { margin-top: 25px; display: flex; gap: 15px; }
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        thead { background: linear-gradient(135deg, #f8f9fa, #e9ecef); }
+        th { padding: 16px 18px; text-align: left; font-weight: 600; color: #555; font-size: 0.9rem; }
+        th i { margin-right: 6px; color: #1a5d3a; }
+        td { padding: 16px 18px; border-bottom: 1px solid #f0f0f0; }
+        tr { transition: background 0.2s; }
         tr:hover { background: #fafafa; }
-        .btn-edit, .btn-delete { padding: 8px 15px; border: none; border-radius: 8px; cursor: pointer; font-family: 'Poppins', sans-serif; transition: all 0.3s; margin-right: 5px; }
-        .btn-edit { background: #e3f2fd; color: #1976d2; }
-        .btn-delete { background: #ffebee; color: #d32f2f; }
-        .no-data { text-align: center; padding: 50px; color: #999; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .btn-edit, .btn-delete { padding: 10px 18px; border: none; border-radius: 10px; cursor: pointer; font-family: 'Poppins', sans-serif; transition: all 0.3s; margin-right: 8px; display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 500; }
+        .btn-edit { background: linear-gradient(135deg, #e3f2fd, #bbdefb); color: #1976d2; }
+        .btn-edit:hover { background: linear-gradient(135deg, #bbdefb, #90caf9); transform: translateY(-2px); }
+        .btn-delete { background: linear-gradient(135deg, #ffebee, #ffcdd2); color: #d32f2f; }
+        .btn-delete:hover { background: linear-gradient(135deg, #ffcdd2, #ef9a9a); transform: translateY(-2px); }
+        .no-data { text-align: center; padding: 60px; color: #999; }
+        .no-data i { font-size: 50px; margin-bottom: 15px; color: #ddd; display: block; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
         .modal.show { display: flex; }
-        .modal-content { background: white; border-radius: 15px; padding: 30px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .modal-header h3 { color: #333; }
-        .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #999; }
+        .modal-content { background: white; border-radius: 20px; padding: 35px; width: 90%; max-width: 520px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; padding-bottom: 18px; border-bottom: 2px solid #f0f0f0; }
+        .modal-header h3 { color: #333; display: flex; align-items: center; gap: 10px; }
+        .modal-header h3 i { color: #1a5d3a; }
+        .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #999; transition: color 0.3s; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .modal-close:hover { color: #333; background: #f0f0f0; }
+        @media (max-width: 992px) { .sidebar { width: 80px; padding: 15px 10px; } .sidebar-header h2, .sidebar-header p, .nav-menu a span { display: none; } .sidebar-header .logo { font-size: 35px; } .nav-menu a { justify-content: center; padding: 14px; } .main-content { margin-left: 80px; } }
+        @media (max-width: 768px) { .sidebar { display: none; } .main-content { margin-left: 0; padding: 20px; } }
+        /* Mobile Back Button - Only visible on mobile */
+        .mobile-back-btn { display: none; }
+        @media (max-width: 768px) {
+            .mobile-back-btn {
+                display: flex;
+                position: fixed;
+                bottom: 20px;
+                left: 15px;
+                z-index: 1000;
+                width: 42px;
+                height: 42px;
+                background: linear-gradient(135deg, #1a5d3a, #2e8b57);
+                border-radius: 50%;
+                align-items: center;
+                justify-content: center;
+                text-decoration: none;
+                color: white;
+                font-size: 1.1rem;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+                transition: all 0.3s ease;
+            }
+            .mobile-back-btn:hover, .mobile-back-btn:active {
+                transform: scale(1.1);
+                background: linear-gradient(135deg, #0d3320, #1a5d3a);
+            }
+        }
     </style>
 </head>
 <body>
+    <a href="dashboard.jsp" class="mobile-back-btn" title="Kembali ke Dashboard"><i class="fas fa-arrow-left"></i></a>
     <div class="sidebar">
         <div class="sidebar-header">
+            <div class="logo"><i class="fas fa-mosque"></i></div>
             <h2>Masjid Jabalussalam</h2>
             <p>Admin Panel</p>
         </div>
         <ul class="nav-menu">
-            <li><a href="dashboard.jsp">Dashboard</a></li>
-            <li><a href="kegiatan.jsp" class="active">Kelola Kegiatan</a></li>
-            <li><a href="keuangan.jsp">Kelola Keuangan</a></li>
-            <li class="logout"><a href="../LogoutServlet">Logout</a></li>
+            <li><a href="dashboard.jsp"><i class="fas fa-gauge-high"></i><span>Dashboard</span></a></li>
+            <li><a href="kegiatan.jsp" class="active"><i class="fas fa-calendar-days"></i><span>Kelola Kegiatan</span></a></li>
+            <li><a href="keuangan.jsp"><i class="fas fa-money-bill-wave"></i><span>Kelola Keuangan</span></a></li>
+            <li class="logout"><a href="../LogoutServlet"><i class="fas fa-right-from-bracket"></i><span>Logout</span></a></li>
         </ul>
     </div>
-    
+
     <div class="main-content">
-        <div class="header"><h1>Kelola Kegiatan</h1></div>
-        
+        <div class="header">
+            <i class="fas fa-calendar-days"></i>
+            <h1>Kelola Kegiatan</h1>
+        </div>
+
         <% if ("add".equals(request.getParameter("success"))) { %>
-            <div class="alert alert-success">Kegiatan berhasil ditambahkan!</div>
+            <div class="alert alert-success"><i class="fas fa-check-circle"></i> Kegiatan berhasil ditambahkan!</div>
         <% } else if ("edit".equals(request.getParameter("success"))) { %>
-            <div class="alert alert-success">Kegiatan berhasil diperbarui!</div>
+            <div class="alert alert-success"><i class="fas fa-check-circle"></i> Kegiatan berhasil diperbarui!</div>
         <% } else if ("delete".equals(request.getParameter("success"))) { %>
-            <div class="alert alert-success">Kegiatan berhasil dihapus!</div>
+            <div class="alert alert-success"><i class="fas fa-check-circle"></i> Kegiatan berhasil dihapus!</div>
         <% } %>
         <% if (request.getParameter("error") != null) { %>
-            <div class="alert alert-error">Terjadi kesalahan. Silakan coba lagi.</div>
+            <div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> Terjadi kesalahan. Silakan coba lagi.</div>
         <% } %>
-        
+
         <div class="card">
-            <h3>Tambah Kegiatan Baru</h3>
+            <h3><i class="fas fa-plus-circle"></i> Tambah Kegiatan Baru</h3>
             <form action="../KegiatanServlet" method="post">
                 <input type="hidden" name="action" value="add">
                 <div class="form-grid">
                     <div class="form-group">
-                        <label>Nama Kegiatan</label>
+                        <label><i class="fas fa-pen"></i> Nama Kegiatan</label>
                         <input type="text" name="nama_kegiatan" required placeholder="Masukkan nama kegiatan">
                     </div>
                     <div class="form-group">
-                        <label>Tanggal</label>
+                        <label><i class="fas fa-calendar"></i> Tanggal</label>
                         <input type="date" name="tanggal" required>
                     </div>
                     <div class="form-group">
-                        <label>Waktu</label>
+                        <label><i class="fas fa-clock"></i> Waktu</label>
                         <input type="time" name="waktu" required>
                     </div>
                     <div class="form-group full">
-                        <label>Deskripsi</label>
+                        <label><i class="fas fa-file-alt"></i> Deskripsi</label>
                         <textarea name="deskripsi" placeholder="Masukkan deskripsi kegiatan"></textarea>
                     </div>
                 </div>
                 <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">Simpan</button>
-                    <button type="reset" class="btn btn-secondary">Reset</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Simpan</button>
+                    <button type="reset" class="btn btn-secondary"><i class="fas fa-rotate-left"></i> Reset</button>
                 </div>
             </form>
         </div>
-        
+
         <div class="card">
-            <h3>Daftar Kegiatan</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Nama Kegiatan</th>
-                        <th>Tanggal</th>
-                        <th>Waktu</th>
-                        <th>Deskripsi</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <%
-                    int no = 1;
-                    boolean hasData = false;
-                    try {
-                        Connection con = Koneksi.getKoneksi();
-                        if (con != null) {
-                            Statement st = con.createStatement();
-                            ResultSet rs = st.executeQuery("SELECT * FROM kegiatan ORDER BY tanggal ASC");
-                            while(rs.next()) {
-                                hasData = true;
-                                int id = rs.getInt("id");
-                                String nama = rs.getString("nama_kegiatan");
-                                String tgl = rs.getString("tanggal");
-                                String wkt = rs.getString("waktu");
-                                String desk = rs.getString("deskripsi");
-                                if (desk == null) desk = "";
-                %>
-                    <tr>
-                        <td><%= no++ %></td>
-                        <td><strong><%= nama %></strong></td>
-                        <td><%= tgl %></td>
-                        <td><%= wkt %></td>
-                        <td><%= desk.isEmpty() ? "-" : desk %></td>
-                        <td>
-                            <button class="btn-edit" onclick="openEdit(<%= id %>, '<%= nama.replace("'", "\\'") %>', '<%= tgl %>', '<%= wkt %>', '<%= desk.replace("'", "\\'").replace("\n", " ").replace("\r", "") %>')">Edit</button>
-                            <form action="../KegiatanServlet" method="post" style="display:inline;" onsubmit="return confirm('Yakin hapus?')">
-                                <input type="hidden" name="action" value="delete">
-                                <input type="hidden" name="id" value="<%= id %>">
-                                <button type="submit" class="btn-delete">Hapus</button>
-                            </form>
-                        </td>
-                    </tr>
-                <%
-                            }
-                        }
-                    } catch (Exception e) {
-                        out.println("<tr><td colspan='6' class='no-data'>Error: " + e.getMessage() + "</td></tr>");
-                    }
-                    if (!hasData) {
-                %>
-                    <tr><td colspan="6" class="no-data">Belum ada data kegiatan</td></tr>
-                <% } %>
-                </tbody>
-            </table>
+            <h3><i class="fas fa-list"></i> Daftar Kegiatan</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-hashtag"></i> No</th>
+                            <th><i class="fas fa-pen"></i> Nama Kegiatan</th>
+                            <th><i class="fas fa-calendar"></i> Tanggal</th>
+                            <th><i class="fas fa-clock"></i> Waktu</th>
+                            <th><i class="fas fa-file-alt"></i> Deskripsi</th>
+                            <th><i class="fas fa-cog"></i> Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+<%
+int no = 1;
+boolean hasData = false;
+Connection con = null;
+try {
+    con = Koneksi.getKoneksi();
+    if (con != null) {
+        Statement st = con.createStatement();
+        ResultSet rs = st.executeQuery("SELECT * FROM kegiatan ORDER BY tanggal ASC");
+        while (rs.next()) {
+            hasData = true;
+            int id = rs.getInt("id");
+            String nama = rs.getString("nama_kegiatan");
+            String tgl = rs.getString("tanggal");
+            String wkt = rs.getString("waktu");
+            String desk = rs.getString("deskripsi");
+            if (desk == null) desk = "";
+            String namaJs = nama.replace("'", "\\'").replace("\"", "\\\"");
+            String deskJs = desk.replace("'", "\\'").replace("\"", "\\\"").replace("\n", " ").replace("\r", "");
+%>
+                        <tr>
+                            <td><%= no++ %></td>
+                            <td><strong><%= nama %></strong></td>
+                            <td><%= tgl %></td>
+                            <td><%= wkt %></td>
+                            <td><%= desk.isEmpty() ? "-" : desk %></td>
+                            <td>
+                                <button class="btn-edit" onclick="openEdit(<%= id %>, '<%= namaJs %>', '<%= tgl %>', '<%= wkt %>', '<%= deskJs %>')">
+                                    <i class="fas fa-pen-to-square"></i> Edit
+                                </button>
+                                <form action="../KegiatanServlet" method="post" style="display:inline;" onsubmit="return confirm('Yakin hapus kegiatan ini?')">
+                                    <input type="hidden" name="action" value="delete">
+                                    <input type="hidden" name="id" value="<%= id %>">
+                                    <button type="submit" class="btn-delete"><i class="fas fa-trash-can"></i> Hapus</button>
+                                </form>
+                            </td>
+                        </tr>
+<%
+        }
+        rs.close();
+        st.close();
+    }
+} catch (Exception e) {
+%>
+                        <tr><td colspan="6" class="no-data"><i class="fas fa-exclamation-triangle"></i>Error: <%= e.getMessage() %></td></tr>
+<%
+} finally {
+    if (con != null) try { con.close(); } catch (Exception ex) {}
+}
+if (!hasData) {
+%>
+                        <tr><td colspan="6" class="no-data"><i class="fas fa-calendar-xmark"></i>Belum ada data kegiatan</td></tr>
+<%
+}
+%>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-    
+
     <div class="modal" id="editModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Edit Kegiatan</h3>
-                <button class="modal-close" onclick="closeEdit()">&times;</button>
+                <h3><i class="fas fa-pen-to-square"></i> Edit Kegiatan</h3>
+                <button class="modal-close" onclick="closeEdit()"><i class="fas fa-times"></i></button>
             </div>
             <form action="../KegiatanServlet" method="post">
                 <input type="hidden" name="action" value="edit">
                 <input type="hidden" name="id" id="e_id">
                 <div class="form-group">
-                    <label>Nama Kegiatan</label>
+                    <label><i class="fas fa-pen"></i> Nama Kegiatan</label>
                     <input type="text" name="nama_kegiatan" id="e_nama" required>
                 </div>
                 <div class="form-group">
-                    <label>Tanggal</label>
+                    <label><i class="fas fa-calendar"></i> Tanggal</label>
                     <input type="date" name="tanggal" id="e_tgl" required>
                 </div>
                 <div class="form-group">
-                    <label>Waktu</label>
+                    <label><i class="fas fa-clock"></i> Waktu</label>
                     <input type="time" name="waktu" id="e_wkt" required>
                 </div>
                 <div class="form-group">
-                    <label>Deskripsi</label>
+                    <label><i class="fas fa-file-alt"></i> Deskripsi</label>
                     <textarea name="deskripsi" id="e_desk"></textarea>
                 </div>
                 <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">Simpan</button>
-                    <button type="button" class="btn btn-secondary" onclick="closeEdit()">Batal</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Simpan</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeEdit()"><i class="fas fa-times"></i> Batal</button>
                 </div>
             </form>
         </div>
     </div>
-    
+
     <script>
         function openEdit(id, nama, tgl, wkt, desk) {
             document.getElementById('e_id').value = id;
@@ -233,3 +298,5 @@
     </script>
 </body>
 </html>
+
+
