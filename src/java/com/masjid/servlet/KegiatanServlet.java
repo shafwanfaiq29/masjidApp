@@ -42,18 +42,28 @@ public class KegiatanServlet extends HttpServlet {
                 String waktu = request.getParameter("waktu");
                 String deskripsi = request.getParameter("deskripsi");
                 
-                String sql = "INSERT INTO kegiatan (nama_kegiatan, tanggal, waktu, deskripsi) VALUES (?, ?, ?, ?)";
+                // Bidang otomatis dari role user yang login
+                HttpSession session = request.getSession();
+                String role = (String) session.getAttribute("adminRole");
+                String bidang = "Imarah"; // default
+                if ("Idarah".equals(role)) bidang = "Idarah";
+                else if ("Imarah".equals(role)) bidang = "Imarah";
+                else if ("Riayah".equals(role)) bidang = "Riayah";
+                // Admin tetap bisa input semua, default Imarah
+                
+                String sql = "INSERT INTO kegiatan (nama_kegiatan, tanggal, waktu, deskripsi, bidang) VALUES (?, ?, ?, ?, ?)";
                 PreparedStatement ps = con.prepareStatement(sql);
                 ps.setString(1, namaKegiatan);
                 ps.setString(2, tanggal);
                 ps.setString(3, waktu);
                 ps.setString(4, deskripsi);
+                ps.setString(5, bidang);
                 ps.executeUpdate();
                 
                 response.sendRedirect("admin/kegiatan.jsp?success=add");
                 
             } else if ("edit".equals(action)) {
-                // Edit kegiatan
+                // Edit kegiatan - bidang tidak diubah, tetap seperti aslinya
                 int id = Integer.parseInt(request.getParameter("id"));
                 String namaKegiatan = request.getParameter("nama_kegiatan");
                 String tanggal = request.getParameter("tanggal");

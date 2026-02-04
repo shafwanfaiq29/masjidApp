@@ -37,6 +37,17 @@ public class LoginServlet extends HttpServlet {
                 session.setAttribute("adminId", rs.getInt("id"));
                 session.setAttribute("adminUsername", rs.getString("username"));
                 session.setAttribute("adminNama", rs.getString("nama"));
+                
+                // Get role - default to Admin if column doesn't exist
+                String role = "Admin";
+                try {
+                    role = rs.getString("role");
+                    if (role == null) role = "Admin";
+                } catch (Exception ex) {
+                    role = "Admin";
+                }
+                session.setAttribute("adminRole", role);
+                
                 session.setMaxInactiveInterval(30 * 60); // 30 menit
                 
                 response.sendRedirect("admin/dashboard.jsp");

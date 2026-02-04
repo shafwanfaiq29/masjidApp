@@ -255,8 +255,22 @@
                 }
 
                 .feature-card:nth-child(3) .icon-wrapper {
-                    background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
-                    color: #f57c00;
+                    background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+                    color: #d32f2f;
+                }
+
+                .feature-card.youtube .icon-wrapper {
+                    background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+                    color: #ff0000;
+                }
+
+                .feature-card.youtube:hover {
+                    border-color: #ff0000;
+                }
+
+                .feature-card.youtube:hover .icon-wrapper {
+                    background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+                    color: white;
                 }
 
                 .feature-card:hover .icon-wrapper {
@@ -316,33 +330,6 @@
                     color: #ffd700;
                 }
 
-                /* Back Button */
-                .back-btn {
-                    position: fixed;
-                    top: 20px;
-                    left: 20px;
-                    z-index: 1000;
-                    width: 45px;
-                    height: 45px;
-                    background: rgba(255, 255, 255, 0.95);
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    text-decoration: none;
-                    color: #1a5d3a;
-                    font-size: 1.2rem;
-                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-                    transition: all 0.3s ease;
-                }
-
-                .back-btn:hover {
-                    transform: scale(1.1);
-                    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-                    background: #1a5d3a;
-                    color: white;
-                }
-
                 /* Responsive */
                 @media (max-width: 768px) {
                     header h1 {
@@ -378,16 +365,13 @@
         </head>
 
         <body>
-            <a href="pilih-role.jsp" class="back-btn" title="Kembali">
-                <i class="fas fa-arrow-left"></i>
-            </a>
             <header>
                 <div class="header-content">
                     <div class="header-icon">
                         <i class="fas fa-mosque"></i>
                     </div>
-                    <h1>Masjid Jabalussalam</h1>
-                    <p class="tagline">Pusat Informasi dan Transparansi Keuangan Masjid</p>
+                    <h1>Dewan Kemakmuran Masjid Jabalussalam</h1>
+                    <p class="tagline">Mewujudkan tata kelola masjid yang transparan, akuntable dan modern</p>
                 </div>
             </header>
 
@@ -432,14 +416,14 @@
                         <span class="arrow">Lihat Laporan <i class="fas fa-arrow-right"></i></span>
                     </a>
 
-                    <div class="feature-card">
+                    <a href="http://www.youtube.com/@jabalussalamchannel" target="_blank" class="feature-card youtube">
                         <div class="icon-wrapper">
-                            <i class="fas fa-hand-holding-heart"></i>
+                            <i class="fab fa-youtube"></i>
                         </div>
-                        <h3>Donasi & Infaq</h3>
-                        <p>Mari berkontribusi untuk kemakmuran masjid dan kegiatan dakwah</p>
-                        <span class="arrow">Segera Hadir <i class="fas fa-clock"></i></span>
-                    </div>
+                        <h3>YouTube Channel</h3>
+                        <p>Tonton kajian, ceramah, dan kegiatan masjid di channel YouTube kami</p>
+                        <span class="arrow">Kunjungi Channel <i class="fas fa-external-link-alt"></i></span>
+                    </a>
                 </div>
             </div>
 
