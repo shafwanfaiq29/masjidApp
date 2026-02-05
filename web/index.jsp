@@ -391,9 +391,9 @@
                     </div>
                     <h2>Selamat Datang di Masjid Jabalussalam</h2>
                     <p>
-                        Website resmi Masjid Jabalussalam hadir untuk memberikan transparansi laporan keuangan masjid
-                        serta informasi jadwal kegiatan terkini kepada seluruh jamaah dan masyarakat sekitar.
-                        Mari bersama-sama memakmurkan masjid.
+                        Website resmi Masjid Jabalussalam hadir untuk memberikan informasi tata kelola 
+                        yang transparan, akuntabel dan modern dalam melayani jamaah.
+                        
                     </p>
                 </div>
 
@@ -428,7 +428,7 @@
             </div>
 
             <footer>
-                <p><i class="fas fa-mosque"></i> Masjid Jabalussalam - Semoga Berkah</p>
+                <p><i class="fas fa-mosque"></i> Masjid Jabalussalam </p>
             </footer>
         </body>
 

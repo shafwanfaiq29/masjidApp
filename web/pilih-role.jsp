@@ -276,8 +276,8 @@
             <div class="mosque-icon">
                 <i class="fas fa-mosque"></i>
             </div>
-            <h1>Masjid Jabalussalam</h1>
-            <p class="tagline">Pusat Informasi dan Transparansi Keuangan Masjid</p>
+            <h1>Dewan Kemakmuran Masjid Jabalussalam</h1>
+            <p class="tagline">Mewujudkan tata kelola masjid yang transparan, akuntabel dan modern</p>
             <p class="arabic-text">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم</p>
             <p class="welcome-text">
                 <i class="fas fa-hand-point-right"></i>&nbsp; Silakan pilih cara Anda mengakses website
