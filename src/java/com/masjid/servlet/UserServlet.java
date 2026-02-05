@@ -40,7 +40,9 @@ public class UserServlet extends HttpServlet {
                 String username = request.getParameter("username");
                 String password = request.getParameter("password");
                 String nama = request.getParameter("nama");
-                String role = request.getParameter("role");
+                // Handle multiple roles from checkboxes
+                String[] roles = request.getParameterValues("roles");
+                String role = (roles != null && roles.length > 0) ? String.join(",", roles) : "Admin";
                 
                 String sql = "INSERT INTO admin (username, password, nama, role) VALUES (?, ?, ?, ?)";
                 PreparedStatement ps = con.prepareStatement(sql);
@@ -58,7 +60,9 @@ public class UserServlet extends HttpServlet {
                 String username = request.getParameter("username");
                 String password = request.getParameter("password");
                 String nama = request.getParameter("nama");
-                String role = request.getParameter("role");
+                // Handle multiple roles from checkboxes
+                String[] roles = request.getParameterValues("roles");
+                String role = (roles != null && roles.length > 0) ? String.join(",", roles) : "Admin";
                 
                 String sql;
                 PreparedStatement ps;
