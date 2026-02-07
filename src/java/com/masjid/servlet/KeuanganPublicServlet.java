@@ -27,6 +27,8 @@ public class KeuanganPublicServlet extends HttpServlet {
         String endDate = request.getParameter("end");
         String search = request.getParameter("search");
         String kategori = request.getParameter("kategori");
+        String jenisLaporan = request.getParameter("jenis_laporan"); // New parameter
+        if (jenisLaporan == null || jenisLaporan.isEmpty()) jenisLaporan = "Masjid"; // Default
         
         Connection con = null;
         try {
@@ -34,20 +36,21 @@ public class KeuanganPublicServlet extends HttpServlet {
             StringBuilder json = new StringBuilder();
             json.append("{");
             
-            // Get OVERALL totals (all time - no filter)
+            // Get OVERALL totals (filtered by jenis_laporan only)
             double overallPemasukan = 0;
             double overallPengeluaran = 0;
             
-            String sqlOverall = "SELECT kategori, SUM(jumlah) as total FROM keuangan GROUP BY kategori";
+            String sqlOverall = "SELECT jenis, SUM(jumlah) as total FROM keuangan WHERE jenis_laporan = ? GROUP BY jenis";
             PreparedStatement psOverall = con.prepareStatement(sqlOverall);
+            psOverall.setString(1, jenisLaporan);
             ResultSet rsOverall = psOverall.executeQuery();
             while (rsOverall.next()) {
-                String kat = rsOverall.getString("kategori");
+                String jns = rsOverall.getString("jenis");
                 double total = rsOverall.getDouble("total");
-                if ("Pemasukan".equalsIgnoreCase(kat)) {
+                if ("Kredit".equalsIgnoreCase(jns)) {
                     overallPemasukan = total;
                 } else {
-                    overallPengeluaran = total;
+                    overallPengeluaran = total; // Debit (and others if any)
                 }
             }
             rsOverall.close();
@@ -61,13 +64,15 @@ public class KeuanganPublicServlet extends HttpServlet {
             
             // Build WHERE clause for filters
             StringBuilder whereClause = new StringBuilder();
+            whereClause.append(" WHERE jenis_laporan = ?"); // Always filter by report type
+            
             boolean hasDateFilter = startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty();
             boolean hasSearch = search != null && !search.isEmpty();
             boolean hasKategori = kategori != null && !kategori.isEmpty();
+            
             boolean hasFilter = hasDateFilter || hasSearch || hasKategori;
             
             if (hasFilter) {
-                whereClause.append(" WHERE 1=1");
                 if (hasDateFilter) {
                     whereClause.append(" AND tanggal BETWEEN ? AND ?");
                 }
@@ -83,9 +88,11 @@ public class KeuanganPublicServlet extends HttpServlet {
             double totalPemasukan = 0;
             double totalPengeluaran = 0;
             
-            String sqlSum = "SELECT kategori, SUM(jumlah) as total FROM keuangan" + whereClause.toString() + " GROUP BY kategori";
+            String sqlSum = "SELECT jenis, SUM(jumlah) as total FROM keuangan" + whereClause.toString() + " GROUP BY jenis";
             PreparedStatement psSum = con.prepareStatement(sqlSum);
             int paramIdx = 1;
+            psSum.setString(paramIdx++, jenisLaporan);
+            
             if (hasDateFilter) {
                 psSum.setString(paramIdx++, startDate);
                 psSum.setString(paramIdx++, endDate);
@@ -98,9 +105,9 @@ public class KeuanganPublicServlet extends HttpServlet {
             }
             ResultSet rsSum = psSum.executeQuery();
             while (rsSum.next()) {
-                String kat = rsSum.getString("kategori");
+                String jns = rsSum.getString("jenis");
                 double total = rsSum.getDouble("total");
-                if ("Pemasukan".equalsIgnoreCase(kat)) {
+                if ("Kredit".equalsIgnoreCase(jns)) {
                     totalPemasukan = total;
                 } else {
                     totalPengeluaran = total;
@@ -122,6 +129,8 @@ public class KeuanganPublicServlet extends HttpServlet {
             String sqlList = "SELECT * FROM keuangan" + whereClause.toString() + " ORDER BY tanggal DESC, id DESC";
             PreparedStatement psList = con.prepareStatement(sqlList);
             paramIdx = 1;
+            psList.setString(paramIdx++, jenisLaporan);
+            
             if (hasDateFilter) {
                 psList.setString(paramIdx++, startDate);
                 psList.setString(paramIdx++, endDate);

@@ -44,15 +44,27 @@ public class KeuanganServlet extends HttpServlet {
             if ("add".equals(action)) {
                 String tanggal = request.getParameter("tanggal");
                 String keterangan = request.getParameter("keterangan");
-                String kategori = request.getParameter("kategori");
+                String jenisInput = request.getParameter("jenis");
+                String kategori = jenisInput; // Use jenis as kategori to satisfy potential ENUM constraints
+                String jenisLaporan = request.getParameter("jenis_laporan"); // New parameter
+                if (jenisLaporan == null || jenisLaporan.isEmpty()) jenisLaporan = "Masjid"; // Default
+
+                String jenis = "Debit";
+                if ("Pemasukan".equalsIgnoreCase(jenisInput)) {
+                    jenis = "Kredit";
+                } else if ("Pengeluaran".equalsIgnoreCase(jenisInput)) {
+                    jenis = "Debit";
+                }
                 double jumlah = Double.parseDouble(request.getParameter("jumlah"));
                 
-                String sql = "INSERT INTO keuangan (tanggal, keterangan, kategori, jumlah) VALUES (?, ?, ?, ?)";
+                String sql = "INSERT INTO keuangan (tanggal, keterangan, kategori, jenis, jumlah, jenis_laporan) VALUES (?, ?, ?, ?, ?, ?)";
                 PreparedStatement ps = con.prepareStatement(sql);
                 ps.setString(1, tanggal);
                 ps.setString(2, keterangan);
                 ps.setString(3, kategori);
-                ps.setDouble(4, jumlah);
+                ps.setString(4, jenis);
+                ps.setDouble(5, jumlah);
+                ps.setString(6, jenisLaporan);
                 ps.executeUpdate();
                 ps.close();
                 
@@ -62,16 +74,28 @@ public class KeuanganServlet extends HttpServlet {
                 int id = Integer.parseInt(request.getParameter("id"));
                 String tanggal = request.getParameter("tanggal");
                 String keterangan = request.getParameter("keterangan");
-                String kategori = request.getParameter("kategori");
+                String jenisInput = request.getParameter("jenis");
+                String kategori = jenisInput; // Use jenis as kategori
+                String jenisLaporan = request.getParameter("jenis_laporan"); // New parameter
+                if (jenisLaporan == null || jenisLaporan.isEmpty()) jenisLaporan = "Masjid";
+
+                String jenis = "Debit";
+                if ("Pemasukan".equalsIgnoreCase(jenisInput)) {
+                    jenis = "Kredit";
+                } else if ("Pengeluaran".equalsIgnoreCase(jenisInput)) {
+                    jenis = "Debit";
+                }
                 double jumlah = Double.parseDouble(request.getParameter("jumlah"));
                 
-                String sql = "UPDATE keuangan SET tanggal=?, keterangan=?, kategori=?, jumlah=? WHERE id=?";
+                String sql = "UPDATE keuangan SET tanggal=?, keterangan=?, kategori=?, jenis=?, jumlah=?, jenis_laporan=? WHERE id=?";
                 PreparedStatement ps = con.prepareStatement(sql);
                 ps.setString(1, tanggal);
                 ps.setString(2, keterangan);
                 ps.setString(3, kategori);
-                ps.setDouble(4, jumlah);
-                ps.setInt(5, id);
+                ps.setString(4, jenis);
+                ps.setDouble(5, jumlah);
+                ps.setString(6, jenisLaporan);
+                ps.setInt(7, id);
                 ps.executeUpdate();
                 ps.close();
                 

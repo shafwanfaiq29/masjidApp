@@ -18,7 +18,10 @@ import javax.servlet.http.*;
 )
 public class ArsipServlet extends HttpServlet {
     
-    private static final String UPLOAD_DIR = "uploads/arsip";
+    // DIRECTORY FOR PERSISTENT STORAGE (Project Source Folder)
+    // NOTE: This path is hardcoded for the current environment. 
+    // If the project is moved, this path MUST be updated.
+    private static final String UPLOAD_PATH = "E:/semester 5/PBO/MasjidApp/web/uploads/arsip";
     
     private boolean isLoggedIn(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
@@ -66,15 +69,14 @@ public class ArsipServlet extends HttpServlet {
                 String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
                 String fileName = timestamp + "_" + originalFileName.replaceAll("[^a-zA-Z0-9._-]", "_");
                 
-                // Get upload path
-                String uploadPath = getServletContext().getRealPath("") + File.separator + UPLOAD_DIR;
-                File uploadDir = new File(uploadPath);
+                // Ensure upload directory exists
+                File uploadDir = new File(UPLOAD_PATH);
                 if (!uploadDir.exists()) {
                     uploadDir.mkdirs();
                 }
                 
-                // Save file
-                String filePath = uploadPath + File.separator + fileName;
+                // Save file to persistent location
+                String filePath = UPLOAD_PATH + File.separator + fileName;
                 filePart.write(filePath);
                 
                 // Save to database
@@ -101,9 +103,8 @@ public class ArsipServlet extends HttpServlet {
                 
                 if (rs.next()) {
                     String fileName = rs.getString("file_name");
-                    // Delete file from disk
-                    String uploadPath = getServletContext().getRealPath("") + File.separator + UPLOAD_DIR;
-                    File file = new File(uploadPath + File.separator + fileName);
+                    // Delete file from disk (Persistent Location)
+                    File file = new File(UPLOAD_PATH + File.separator + fileName);
                     if (file.exists()) {
                         file.delete();
                     }
@@ -149,8 +150,8 @@ public class ArsipServlet extends HttpServlet {
                     String namaDokumen = rs.getString("nama_dokumen");
                     String fileName = rs.getString("file_name");
                     
-                    String uploadPath = getServletContext().getRealPath("") + File.separator + UPLOAD_DIR;
-                    File file = new File(uploadPath + File.separator + fileName);
+                    // Read file from persistent location
+                    File file = new File(UPLOAD_PATH + File.separator + fileName);
                     
                     if (file.exists()) {
                         response.setContentType("application/pdf");
@@ -169,7 +170,7 @@ public class ArsipServlet extends HttpServlet {
                         fis.close();
                         os.flush();
                     } else {
-                        response.sendError(HttpServletResponse.SC_NOT_FOUND, "File tidak ditemukan");
+                        response.sendError(HttpServletResponse.SC_NOT_FOUND, "File tidak ditemukan di server (Path: " + file.getAbsolutePath() + ")");
                     }
                 }
                 
