@@ -580,6 +580,46 @@
             .filtered-cards {
                 grid-template-columns: 1fr;
             }
+
+            .filtered-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .report-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .tab-btn {
+            padding: 12px 30px;
+            border: none;
+            background: white;
+            color: #666;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tab-btn.active {
+            background: #1a5d3a;
+            color: white;
+            box-shadow: 0 8px 20px rgba(26, 93, 58, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: #f0f0f0;
+            transform: translateY(-2px);
         }
     </style>
 </head>
@@ -604,6 +644,16 @@
         </div>
     </div>
     <div class="container">
+        <!-- Tabs Section -->
+        <div class="report-tabs">
+            <button class="tab-btn active" onclick="switchTab('Masjid', this)">
+                <i class="fas fa-mosque"></i> Kas Masjid
+            </button>
+            <button class="tab-btn" onclick="switchTab('Jumat Barokah', this)">
+                <i class="fas fa-box-open"></i> Jumat Barokah
+            </button>
+        </div>
+
         <!-- Total Keseluruhan -->
         <h3 class="section-header"><i class="fas fa-chart-pie"></i> Total Keseluruhan </h3>
         <div id="overallCards" class="summary-cards">
@@ -662,38 +712,81 @@
     <footer>
         <p><i class="fas fa-mosque"></i> Masjid Jabalussalam - Transparansi Keuangan</p>
     </footer>
-
     <script>
         let currentStartDate = '';
         let currentEndDate = '';
+        let currentJenisLaporan = 'Masjid';
 
         function formatRupiah(num) {
-            return 'Rp' + num.toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+            return 'Rp' + num.toLocaleString('id-ID', {
+                minimumFractionDigits: 0, maximumFractionDigits: 0
+            });
         }
 
         function formatDate(dateStr) {
-            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            const months = ['Januari',
+                'Februari',
+                'Maret',
+                'April',
+                'Mei',
+                'Juni',
+                'Juli',
+                'Agustus',
+                'September',
+                'Oktober',
+                'November',
+                'Desember'];
             const parts = dateStr.split('-');
+
             if (parts.length >= 3) {
                 return parseInt(parts[2]) + ' ' + months[parseInt(parts[1]) - 1] + ' ' + parts[0];
             }
+
             return dateStr;
         }
 
+        function switchTab(jenis, btn) {
+            // Update UI
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            // Update State
+            currentJenisLaporan = jenis;
+
+            // Reload Data
+            resetFilter();
+        }
+
         function loadData(startDate, endDate) {
-            let url = 'api/keuangan';
+            let url = 'api/keuangan?jenis_laporan=' + encodeURIComponent(currentJenisLaporan);
+
             if (startDate && endDate) {
-                url += '?start=' + startDate + '&end=' + endDate;
+                url += '&start=' + startDate + '&end=' + endDate;
                 currentStartDate = startDate;
                 currentEndDate = endDate;
-            } else {
+            }
+
+            else {
                 currentStartDate = '';
                 currentEndDate = '';
             }
 
             fetch(url)
-                .then(response => response.json())
-                .then(data => {
+                .then(response => response.text()) // Get raw text first
+                .then(text => {
+                    let data;
+                    try {
+                        data = JSON.parse(text); // Try to parse JSON
+                    } catch (e) {
+                        // If parse fails, it's likely an HTML error page. Show it.
+                        console.error("Server Error:", text);
+                        document.getElementById('overallCards').innerHTML =
+                            '<div class="no-data" style="color:red; text-align:left; overflow:auto;"><i class="fas fa-bug"></i> <b>Server Error (Raw):</b><br><pre>' +
+                            text.replace(/</g, "&lt;").replace(/>/g, "&gt;") + // Escape HTML to show plain text code
+                            '</pre></div>';
+                        throw new Error("Invalid JSON response");
+                    }
+
                     if (data.error) {
                         document.getElementById('overallCards').innerHTML = '<div class="no-data"><i class="fas fa-exclamation-triangle"></i>Error: ' + data.error + '</div>';
                         return;
@@ -708,6 +801,7 @@
 
                     // Update FILTERED section if filter is applied
                     const filteredSection = document.getElementById('filteredSection');
+
                     if (data.hasFilter) {
                         filteredSection.classList.add('show');
                         document.getElementById('dateRangeInfo').innerHTML = '<i class="fas fa-calendar-alt"></i> Periode: ' + formatDate(currentStartDate) + ' - ' + formatDate(currentEndDate);
@@ -717,12 +811,15 @@
                         filteredHtml += '<div class="filtered-card pengeluaran"><h4>Pengeluaran</h4><div class="amount">' + formatRupiah(data.filteredPengeluaran) + '</div></div>';
                         filteredHtml += '<div class="filtered-card saldo"><h4>Saldo Periode</h4><div class="amount">' + formatRupiah(data.filteredSaldo) + '</div></div>';
                         document.getElementById('filteredCards').innerHTML = filteredHtml;
-                    } else {
+                    }
+
+                    else {
                         filteredSection.classList.remove('show');
                     }
 
                     // Update transaction table
                     let tableHtml = '';
+
                     if (data.transaksi && data.transaksi.length > 0) {
                         data.transaksi.forEach(function (item) {
                             let katClass = item.kategori.toLowerCase();
@@ -735,12 +832,19 @@
                             tableHtml += '<td class="amount-cell">' + formatRupiah(item.jumlah) + '</td>';
                             tableHtml += '</tr>';
                         });
-                    } else {
-                        tableHtml = '<tr><td colspan="4" class="no-data"><i class="fas fa-inbox"></i>Belum ada data transaksi</td></tr>';
                     }
+
+                    else {
+                        let debugMsg = "";
+                        if (data.debug_available_types) {
+                            debugMsg = "<br><small>Debug Info: DB contains report types: [" + data.debug_available_types + "]</small>";
+                        }
+                        tableHtml = '<tr><td colspan="4" class="no-data"><i class="fas fa-inbox"></i>Belum ada data transaksi' + debugMsg + '</td></tr>';
+                    }
+
                     document.getElementById('transactionBody').innerHTML = tableHtml;
-                })
-                .catch(error => {
+
+                }).catch(error => {
                     document.getElementById('overallCards').innerHTML = '<div class="no-data"><i class="fas fa-exclamation-triangle"></i>Error: ' + error.message + '</div>';
                 });
         }
@@ -751,7 +855,9 @@
 
             if (startDate && endDate) {
                 loadData(startDate, endDate);
-            } else {
+            }
+
+            else {
                 alert('Silakan pilih tanggal mulai dan tanggal akhir');
             }
         }

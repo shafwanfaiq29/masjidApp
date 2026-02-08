@@ -18,6 +18,7 @@
                         rel="stylesheet">
                     <link rel="stylesheet"
                         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+                    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
                     <style>
                         * {
                             margin: 0;
@@ -842,10 +843,7 @@
                 <body>
                     <div class="sidebar">
                         <div class="sidebar-header">
-                            <div class="logo">
-                                <img src="../assets/img/logo.png" alt="Masjid Jabalussalam Logo"
-                                    style="width: 120px; height: auto;">
-                            </div>
+                            <div class="logo"><i class="fas fa-mosque"></i></div>
                             <h2>Masjid Jabalussalam</h2>
                             <p>Admin Panel</p><span class="role-badge"><i class="fas fa-user-tag"></i>
                                 <%=adminRole%>
@@ -894,8 +892,8 @@
                                     <thead>
                                         <tr>
                                             <th width="5%">No</th>
-                                            <th width="15%">Tanggal</th>
-                                            <th width="60%">Keterangan</th>
+                                            <th width="20%" style="white-space: nowrap;">Tanggal</th>
+                                            <th width="55%">Keterangan</th>
                                             <th width="20%" class="text-right">Jumlah</th>
                                         </tr>
                                     </thead>
@@ -904,7 +902,7 @@
                                     </tbody>
                                     <tfoot>
                                         <tr class="total-row">
-                                            <td colspan="4">Total Pemasukan</td>
+                                            <td colspan="3">Total Pemasukan</td>
                                             <td class="text-right" id="printTotalPemasukan">Rp0</td>
                                         </tr>
                                     </tfoot>
@@ -916,8 +914,8 @@
                                     <thead>
                                         <tr>
                                             <th width="5%">No</th>
-                                            <th width="15%">Tanggal</th>
-                                            <th width="60%">Keterangan</th>
+                                            <th width="20%" style="white-space: nowrap;">Tanggal</th>
+                                            <th width="55%">Keterangan</th>
                                             <th width="20%" class="text-right">Jumlah</th>
                                         </tr>
                                     </thead>
@@ -926,7 +924,7 @@
                                     </tbody>
                                     <tfoot>
                                         <tr class="total-row">
-                                            <td colspan="4">Total Pengeluaran</td>
+                                            <td colspan="3">Total Pengeluaran</td>
                                             <td class="text-right" id="printTotalPengeluaran">Rp0</td>
                                         </tr>
                                     </tfoot>
@@ -940,11 +938,16 @@
                                 <div class="summary-row grand-total"><span>TOTAL SALDO</span><span
                                         id="summarySaldo">Rp0</span></div>
                             </div>
-                            <div class="print-footer">
-                                <div class="sign-box">
-                                    <p>Mengetahui,
-                                    </p>
+                            <div class="print-footer"
+                                style="display: flex; justify-content: space-between; margin-top: 50px;">
+                                <div class="sign-box" style="text-align: center;">
+                                    <p>Mengetahui,</p>
                                     <p>Ketua DKM</p><br><br><br>
+                                    <p>(...........................)</p>
+                                </div>
+                                <div class="sign-box" style="text-align: center;">
+                                    <p>Dibuat Oleh,</p>
+                                    <p>Bendahara</p><br><br><br>
                                     <p>(...........................)</p>
                                 </div>
                             </div>
@@ -986,7 +989,7 @@
                         <!-- Form Card (Replaces Modal) -->
                         <div class="card no-print">
                             <h3><i class="fas fa-plus-circle"></i>Tambah / Edit Data Keuangan</h3>
-                            <form id="keuanganForm" action="../KeuanganServlet" method="post"><input type="hidden"
+                            <form id="keuanganForm" action="process_keuangan.jsp" method="post"><input type="hidden"
                                     name="action" id="formAction" value="add"><input type="hidden" name="id"
                                     id="dataId"><input type="hidden" name="jenis_laporan" id="jenisLaporanInput"
                                     value="Masjid">
@@ -1114,87 +1117,96 @@
                             }
 
                             function loadData(params) {
-                                let url = '../api/keuangan';
-
-                                // Always include jenis_laporan
+                                let url = '../KeuanganServlet?action=get_data';
                                 let queryParams = 'jenis_laporan=' + encodeURIComponent(currentLaporanType);
 
                                 if (params) {
-                                    url += '?' + queryParams + '&' + params;
+                                    url += '&' + queryParams + '&' + params;
                                 } else {
-                                    url += '?' + queryParams;
+                                    url += '&' + queryParams;
                                 }
 
                                 document.getElementById('keuanganBody').innerHTML = '<tr><td colspan="7" class="loading"><i class="fas fa-spinner fa-spin"></i> Memuat data...</td></tr>';
 
-                                fetch(url).then(response => response.json()).then(data => {
-                                    if (data.error) {
-                                        document.getElementById('keuanganBody').innerHTML = '<tr><td colspan="7" class="no-data">Error: ' + data.error + '</td></tr>';
-                                        return;
-                                    }
+                                fetch(url)
+                                    .then(response => response.text()) // Get text first
+                                    .then(text => {
+                                        let data;
+                                        try {
+                                            data = JSON.parse(text);
+                                        } catch (e) {
+                                            console.error("Server Error:", text);
+                                            document.getElementById('keuanganBody').innerHTML = '<tr><td colspan="7" class="no-data" style="color:red; text-align:left;"><pre>' + text.replace(/</g, "&lt;") + '</pre></td></tr>';
+                                            throw new Error("Invalid JSON");
+                                        }
 
-                                    globalData = data.transaksi || [];
+                                        if (data.error) {
+                                            document.getElementById('keuanganBody').innerHTML = '<tr><td colspan="7" class="no-data">Error: ' + data.error + '</td></tr>';
+                                            return;
+                                        }
 
-                                    // Calculate totals
-                                    let totalMasuk = 0;
-                                    let totalKeluar = 0;
+                                        globalData = data.transaksi || [];
 
-                                    // Arrays for print tables
-                                    let pemasukanData = [];
-                                    let pengeluaranData = [];
+                                        // Calculate totals
+                                        let totalMasuk = 0;
+                                        let totalKeluar = 0;
 
-                                    let tableHtml = '';
+                                        // Arrays for print tables
+                                        let pemasukanData = [];
+                                        let pengeluaranData = [];
 
-                                    if (globalData.length > 0) {
-                                        globalData.forEach((item, index) => {
-                                            // Normalize jenis from DB (Kredit/Debit) to UI (Pemasukan/Pengeluaran)
-                                            if (item.jenis === 'Kredit') item.jenis = 'Pemasukan';
-                                            else if (item.jenis === 'Debit') item.jenis = 'Pengeluaran';
+                                        let tableHtml = '';
 
-                                            // Update totals
-                                            if (item.jenis === 'Pemasukan') {
-                                                totalMasuk += item.jumlah;
-                                                pemasukanData.push(item);
-                                            }
+                                        if (globalData.length > 0) {
+                                            globalData.forEach((item, index) => {
+                                                // Normalize
+                                                let jenisDisplay = item.jenis;
+                                                if (item.jenis === 'Kredit') jenisDisplay = 'Pemasukan';
+                                                else if (item.jenis === 'Debit') jenisDisplay = 'Pengeluaran';
 
-                                            else {
-                                                totalKeluar += item.jumlah;
-                                                pengeluaranData.push(item);
-                                            }
+                                                // Update totals
+                                                if (jenisDisplay === 'Pemasukan') {
+                                                    totalMasuk += item.jumlah;
+                                                    pemasukanData.push(item);
+                                                } else {
+                                                    totalKeluar += item.jumlah;
+                                                    pengeluaranData.push(item);
+                                                }
 
-                                            // Main Table Row
-                                            tableHtml += '<tr>' +
-                                                '<td class="text-center">' + (index + 1) + '</td>' +
-                                                '<td>' + formatDate(item.tanggal) + '</td>' +
-                                                '<td>' + (item.keterangan || '-') + '</td>' +
-                                                '<td><span class="badge ' + item.jenis.toLowerCase() + '">' + item.jenis + '</span></td>' +
-                                                '<td class="text-right">' + formatRupiah(item.jumlah) + '</td>' +
-                                                '<td class="text-center">' +
-                                                '<button class="btn-edit" onclick="editData(' + item.id + ')"><i class="fas fa-edit"></i> Edit</button>' +
-                                                '<button class="btn-delete" onclick="deleteData(' + item.id + ')"><i class="fas fa-trash"></i> Hapus</button>' +
-                                                '</td>' +
-                                                '</tr>';
-                                        });
-                                    }
+                                                // Main Table Row
+                                                tableHtml += '<tr>' +
+                                                    '<td class="text-center">' + (index + 1) + '</td>' +
+                                                    '<td>' + formatDate(item.tanggal) + '</td>' +
+                                                    '<td>' + (item.keterangan || '-') + '</td>' +
+                                                    '<td><span class="badge ' + jenisDisplay.toLowerCase() + '">' + jenisDisplay + '</span></td>' +
+                                                    '<td class="text-right">' + formatRupiah(item.jumlah) + '</td>' +
+                                                    '<td class="text-center">' +
+                                                    '<button class="btn-edit" onclick="editData(' + item.id + ')"><i class="fas fa-edit"></i> Edit</button>' +
+                                                    '<button class="btn-delete" onclick="deleteData(' + item.id + ')"><i class="fas fa-trash"></i> Hapus</button>' +
+                                                    '</td>' +
+                                                    '</tr>';
+                                            });
+                                        } else {
+                                            tableHtml = '<tr><td colspan="7" class="no-data">Belum ada data keuangan</td></tr>';
+                                        }
 
-                                    else {
-                                        tableHtml = '<tr><td colspan="7" class="no-data">Belum ada data keuangan</td></tr>';
-                                    }
+                                        document.getElementById('keuanganBody').innerHTML = tableHtml;
 
-                                    document.getElementById('keuanganBody').innerHTML = tableHtml;
+                                        // Update Summary Cards
+                                        document.getElementById('totalPemasukan').innerText = formatRupiah(totalMasuk);
+                                        document.getElementById('totalPengeluaran').innerText = formatRupiah(totalKeluar);
+                                        document.getElementById('totalSaldo').innerText = formatRupiah(totalMasuk - totalKeluar);
 
-                                    // Update Summary Cards
-                                    document.getElementById('totalPemasukan').textContent = formatRupiah(totalMasuk);
-                                    document.getElementById('totalPengeluaran').textContent = formatRupiah(totalKeluar);
-                                    document.getElementById('totalSaldo').textContent = formatRupiah(totalMasuk - totalKeluar);
+                                        // Update Print View
+                                        updatePrintView(pemasukanData, pengeluaranData, totalMasuk, totalKeluar);
 
-                                    // --- UPDATE PRINT VIEW ---
-                                    updatePrintView(pemasukanData, pengeluaranData, totalMasuk, totalKeluar);
-
-                                }).catch(error => {
-                                    console.error('Error:', error);
-                                    document.getElementById('keuanganBody').innerHTML = '<tr><td colspan="7" class="no-data">Gagal memuat data</td></tr>';
-                                });
+                                    }).catch(error => {
+                                        console.error('Error:', error);
+                                        // Don't overwrite if we already showed a specific error from the try-catch block
+                                        if (!document.getElementById('keuanganBody').innerHTML.includes('pre')) {
+                                            document.getElementById('keuanganBody').innerHTML = '<tr><td colspan="7" class="no-data">Gagal memuat data: ' + error.message + '</td></tr>';
+                                        }
+                                    });
                             }
 
                             function updatePrintView(pemasukan, pengeluaran, totalMasuk, totalKeluar) {
@@ -1315,21 +1327,35 @@
                             }
 
                             function deleteData(id) {
-                                if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
-                                    fetch('../KeuanganServlet?action=delete&id=' + id, {
-                                        method: 'POST'
+                                Swal.fire({
+                                    title: 'Apakah Anda yakin?',
+                                    text: "Data yang dihapus tidak dapat dikembalikan!",
+                                    icon: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#d33',
+                                    cancelButtonColor: '#3085d6',
+                                    confirmButtonText: 'Ya, hapus!',
+                                    cancelButtonText: 'Batal'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        let type = currentLaporanType || 'Masjid';
 
-                                    }).then(response => {
-                                        if (response.redirected) {
-                                            window.location.href = response.url;
-                                        }
+                                        // Show loading
+                                        Swal.fire({
+                                            title: 'Menghapus data...',
+                                            didOpen: () => Swal.showLoading()
+                                        });
 
-                                        else {
-                                            // Assuming the servlet redirects back to keuangan.jsp
-                                            window.location.reload();
-                                        }
-                                    }).catch(error => console.error('Error:', error));
-                                }
+                                        fetch('process_keuangan.jsp?action=delete&id=' + id + '&jenis_laporan=' + encodeURIComponent(type), {
+                                            method: 'POST'
+                                        }).then(response => {
+                                            window.location.href = 'keuangan.jsp?success=delete&jenis_laporan=' + encodeURIComponent(type);
+                                        }).catch(error => {
+                                            console.error('Error:', error);
+                                            Swal.fire('Gagal', 'Terjadi kesalahan saat menghapus data', 'error');
+                                        });
+                                    }
+                                });
                             }
 
                             // Show Alert
@@ -1344,7 +1370,12 @@
                             }
 
                             // Initial Load
-                            switchLaporan('Masjid');
+                            const urlParamsInit = new URLSearchParams(window.location.search);
+                            if (urlParamsInit.has('jenis_laporan')) {
+                                switchLaporan(decodeURIComponent(urlParamsInit.get('jenis_laporan')));
+                            } else {
+                                switchLaporan('Masjid');
+                            }
 
                             // Check for URL parameters for alerts
                             const urlParams = new URLSearchParams(window.location.search);
@@ -1360,6 +1391,7 @@
                                 const err = urlParams.get('error');
                                 let msg = 'Terjadi kesalahan saat memproses data.';
                                 if (err === 'db') msg = 'Gagal terhubung ke database.';
+                                if (err === 'custom' && urlParams.has('msg')) msg = decodeURIComponent(urlParams.get('msg'));
                                 showAlert(msg, 'error');
                                 // Clean URL
                                 window.history.replaceState({}, document.title, window.location.pathname);

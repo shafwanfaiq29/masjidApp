@@ -18,6 +18,7 @@
                         rel="stylesheet">
                     <link rel="stylesheet"
                         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+                    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
                     <style>
                         * {
                             margin: 0;
@@ -718,19 +719,38 @@
                         }
 
                         function deleteArsip(id) {
-                            if (confirm('Yakin hapus dokumen ini?')) {
-                                fetch('../ArsipServlet', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                                    body: 'action=delete&id=' + id
-                                })
-                                    .then(response => response.text())
-                                    .then(result => {
-                                        applyFilter();
-                                        document.getElementById('alertContainer').innerHTML = '<div class="alert alert-success"><i class="fas fa-check-circle"></i> Dokumen berhasil dihapus!</div>';
-                                        setTimeout(() => { document.getElementById('alertContainer').innerHTML = ''; }, 3000);
+                            Swal.fire({
+                                title: 'Apakah Anda yakin?',
+                                text: "Dokumen yang dihapus tidak dapat dikembalikan!",
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#d33',
+                                cancelButtonColor: '#3085d6',
+                                confirmButtonText: 'Ya, hapus!',
+                                cancelButtonText: 'Batal'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    Swal.fire({
+                                        title: 'Menghapus...',
+                                        didOpen: () => Swal.showLoading()
                                     });
-                            }
+
+                                    fetch('../ArsipServlet', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                                        body: 'action=delete&id=' + id
+                                    })
+                                        .then(response => response.text())
+                                        .then(result => {
+                                            applyFilter();
+                                            Swal.fire('Terhapus!', 'Dokumen berhasil dihapus.', 'success');
+                                        })
+                                        .catch(error => {
+                                            console.error(error);
+                                            Swal.fire('Gagal', 'Terjadi kesalahan saat menghapus data.', 'error');
+                                        });
+                                }
+                            });
                         }
 
                         // Search on Enter key
