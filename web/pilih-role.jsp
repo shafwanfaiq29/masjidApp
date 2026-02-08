@@ -277,7 +277,7 @@
         <div class="role-buttons">
             <a href="index.jsp" class="role-card">
                 <span class="icon"><i class="fas fa-users"></i></span>
-                <h3>Masyarakat</h3>
+                <h3>Jamaah</h3>
                 <p>Lihat informasi kegiatan<br>dan laporan keuangan</p>
             </a>
             <a href="login.jsp" class="role-card">

@@ -482,7 +482,7 @@
         <div class="hero-content">
             <div class="hero-icon"><i class="fas fa-calendar-days"></i></div>
             <h1>Jadwal Kegiatan</h1>
-            <p>Informasi kegiatan dan acara di Masjid Jabalussalam</p>
+            <p>Informasi Kegiatan Masjid Jabalussalam</p>
         </div>
     </div>
     <div class="container">
@@ -493,7 +493,7 @@
         </div>
     </div>
     <footer>
-        <p><i class="fas fa-mosque"></i> 2026 Masjid Jabalussalam - Semoga Berkah</p>
+        <p><i class="fas fa-mosque"></i> Masjid Jabalussalam </p>
     </footer>
 
     <script>

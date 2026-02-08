@@ -710,7 +710,7 @@
         </div>
     </div>
     <footer>
-        <p><i class="fas fa-mosque"></i> Masjid Jabalussalam - Transparansi Keuangan</p>
+        <p><i class="fas fa-mosque"></i> Masjid Jabalussalam </p>
     </footer>
     <script>
         let currentStartDate = '';
@@ -826,7 +826,7 @@
                             let katIcon = item.kategori === 'Pemasukan' ? 'fa-arrow-up' : 'fa-arrow-down';
 
                             tableHtml += '<tr>';
-                            tableHtml += '<td>' + item.tanggal + '</td>';
+                            tableHtml += '<td>' + formatDate(item.tanggal) + '</td>';
                             tableHtml += '<td>' + item.keterangan + '</td>';
                             tableHtml += '<td><span class="badge ' + katClass + '"><i class="fas ' + katIcon + '"></i> ' + item.kategori + '</span></td>';
                             tableHtml += '<td class="amount-cell">' + formatRupiah(item.jumlah) + '</td>';

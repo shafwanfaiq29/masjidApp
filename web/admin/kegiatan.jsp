@@ -554,10 +554,6 @@
                                 margin-left: 0;
                                 padding: 20px;
                             }
-
-                            .filter-section {
-                                flex-direction: column;
-                            }
                         }
                     </style>
                 </head>
